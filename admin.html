@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>аявки • Сталкер</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+    .card { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; margin: 12px 0; }
+    .card p { margin: 4px 0; }
+    .empty { text-align: center; color: gray; margin-top: 40px; }
+    button { background: #fd79a8; color: white; border: none; padding: 12px 24px; border-radius: 50px; font-size: 16px; cursor: pointer; margin: 8px; }
+  </style>
+</head>
+<body>
+  <h1>📬 аявки на прогулку</h1>
+  <div id="requests"></div>
+  <button onclick="check()">🔄 бновить</button>
+  <button onclick="clearAll()">🗑 чистить всё</button>
+  <script>
+    function check() {
+      const data = JSON.parse(localStorage.getItem('walkRequests') || '[]');
+      const div = document.getElementById('requests');
+      if (data.length === 0) {
+        div.innerHTML = '<div class="empty">ока нет заявок 🥺</div>';
+        return;
+      }
+      div.innerHTML = data.map((r, i) => `
+        <div class="card">
+          <p><strong>👤 ${r.name}</strong></p>
+          <p>📅 ${r.date} | ⏰ ${r.time}</p>
+          <p>📍 ${r.format}</p>
+          <p>🗺 ${r.route}</p>
+          <p>🧥 ${r.coat}</p>
+          <p style="color:gray;font-size:12px;">${r.timestamp}</p>
+        </div>
+      `).reverse().join('');
+    }
+    function clearAll() {
+      if (confirm('Удалить все заявки?')) {
+        localStorage.removeItem('walkRequests');
+        check();
+      }
+    }
+    check();
+  </script>
+</body>
+</html>
