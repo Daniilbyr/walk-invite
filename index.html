@@ -1,0 +1,380 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Секретная миссия • Прогулка</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; padding-bottom: 80px;
+      overflow-x: hidden; position: relative; background: #1a1a2e;
+    }
+    .sky { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+    .sun {
+      position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, #ffdd59 0%, #ff9f43 40%, #ff6b6b 70%, transparent 70%);
+      border-radius: 50%;
+      box-shadow: 0 0 80px #ff9f43, 0 0 160px #ff6b6b, 0 0 240px rgba(255, 107, 107, 0.5);
+      animation: sunPulse 4s ease-in-out infinite; z-index: 1;
+    }
+    @keyframes sunPulse {
+      0%, 100% { box-shadow: 0 0 80px #ff9f43, 0 0 160px #ff6b6b, 0 0 240px rgba(255, 107, 107, 0.5); }
+      50% { box-shadow: 0 0 100px #ffdd59, 0 0 200px #ff9f43, 0 0 300px rgba(255, 107, 107, 0.7); }
+    }
+    .horizon {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+      background: linear-gradient(to top, #2d1b4e 0%, #4a2040 15%, #6b2c3a 30%, #a04a3a 50%, #d4754a 70%, #f0a65e 85%, #fccb77 100%);
+      z-index: 0;
+    }
+    .sky-bg {
+      position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+      background: linear-gradient(180deg, #1a1a3e 0%, #2d1b4e 15%, #4a2060 30%, #7b3a5e 50%, #b85a5a 70%, #e8815a 85%, #fccb77 100%);
+    }
+    .stars-container { position: absolute; top: 0; left: 0; width: 100%; height: 60%; z-index: 2; }
+    .star {
+      position: absolute; background: white; border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out infinite; animation-delay: var(--delay); opacity: 0;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+    }
+    .clouds { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+    .cloud {
+      position: absolute; background: rgba(255,255,255,0.12); border-radius: 50%;
+      filter: blur(25px); animation: cloudFloat var(--dur) linear infinite;
+    }
+    .cloud::before, .cloud::after { content: ''; position: absolute; background: inherit; border-radius: 50%; }
+    .cloud::before { width: 60%; height: 80%; top: -40%; left: 15%; }
+    .cloud::after { width: 50%; height: 70%; top: -25%; right: 10%; }
+    @keyframes cloudFloat {
+      0% { transform: translateX(-250px); }
+      100% { transform: translateX(calc(100vw + 250px)); }
+    }
+    .container {
+      width: 100%; max-width: 420px; background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+      border-radius: 32px; padding: 32px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.3);
+      text-align: center; transition: all 0.4s ease;
+      position: relative; z-index: 10; overflow-y: auto;
+      max-height: 80vh; max-height: 80dvh;
+    }
+    h1 { font-size: 28px; font-weight: 800; color: #2d3436; margin-bottom: 8px; animation: fadeInUp 0.6s ease; }
+    .subtitle { font-size: 16px; color: #636e72; margin-bottom: 32px; animation: fadeInUp 0.8s ease; line-height: 1.5; }
+    .buttons-row { display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 24px; min-height: 60px; }
+    .btn {
+      border: none; border-radius: 50px; padding: 16px 32px; font-size: 20px; font-weight: 700;
+      cursor: pointer; transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease;
+      font-family: 'Nunito', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-yes { background: linear-gradient(135deg, #fd79a8, #e84393); color: white; box-shadow: 0 8px 25px rgba(253,121,168,0.5); z-index: 2; }
+    .btn-no { background: linear-gradient(135deg, #b2bec3, #636e72); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1; }
+    .btn-no.running { position: fixed; z-index: 9999; transition: left 0.15s ease, top 0.15s ease; }
+    .hint-text { font-size: 16px; color: #e84393; font-weight: 600; margin-top: 8px; min-height: 24px; }
+    .form-group { text-align: left; margin-bottom: 16px; }
+    label { font-weight: 700; font-size: 14px; color: #2d3436; display: block; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 14px 16px; border-radius: 16px; border: 2px solid #dfe6e9; font-family: 'Nunito', sans-serif; font-size: 16px; background: white; transition: border-color 0.3s ease; }
+    input:focus, select:focus { outline: none; border-color: #fd79a8; }
+    .radio-group { background: white; border-radius: 16px; padding: 12px; border: 2px solid #dfe6e9; }
+    .radio-option { display: flex; align-items: center; gap: 10px; padding: 8px 4px; flex-wrap: wrap; }
+    .radio-option input[type="radio"] { width: auto; accent-color: #fd79a8; transform: scale(1.3); }
+    .radio-option input[type="text"] { width: auto; flex: 1; min-width: 120px; padding: 8px 12px; margin-top: 4px; }
+    .ticket { background: linear-gradient(135deg, #fff9ec, #fff3d6); border: 3px dashed #fdcb6e; border-radius: 20px; padding: 28px 20px; margin: 20px 0; position: relative; }
+    .ticket-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 15px; padding: 4px 0; }
+    .ticket-row span { color: #636e72; } .ticket-row strong { color: #2d3436; text-align: right; }
+    .stamp {
+      position: absolute; top: 15px; right: 15px; font-size: 36px; font-weight: 900;
+      color: rgba(214,48,49,0.85); transform: rotate(-20deg);
+      border: 4px solid rgba(214,48,49,0.8); border-radius: 50%;
+      padding: 8px 12px; opacity: 0; pointer-events: none;
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .stamp.show { opacity: 1; animation: stampHit 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    @keyframes stampHit {
+      0% { transform: rotate(-20deg) scale(2.5); opacity: 0; }
+      60% { transform: rotate(5deg) scale(1.05); opacity: 1; }
+      100% { transform: rotate(-15deg) scale(1); opacity: 1; }
+    }
+    .hidden { display: none !important; }
+    #finalMessage { margin-top: 20px; font-size: 18px; font-weight: 700; color: #2d3436; line-height: 1.5; }
+    .music-player {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 100;
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 50px; padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2); transition: all 0.3s ease; max-width: 90vw;
+    }
+    .music-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, #fd79a8, #e84393); color: white;
+      font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s ease; flex-shrink: 0;
+    }
+    .music-btn:active { transform: scale(0.9); }
+    .music-btn.playing { background: linear-gradient(135deg, #00b894, #00a381); animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,184,148,0.5); }
+      50% { box-shadow: 0 0 0 12px rgba(0,184,148,0); }
+    }
+    .music-info { display: flex; flex-direction: column; gap: 2px; }
+    .music-title { font-size: 13px; font-weight: 700; color: #2d3436; white-space: nowrap; }
+    .music-subtitle { font-size: 11px; color: #636e72; white-space: nowrap; }
+    .music-note { font-size: 20px; animation: noteFloat 2s ease-in-out infinite; }
+    @keyframes noteFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .confetti-piece {
+      position: fixed; pointer-events: none; z-index: 9999;
+      animation: confettiFall var(--fall-dur) ease-out forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+      80% { opacity: 1; }
+      100% { transform: translateY(105vh) rotate(var(--rot)) scale(0.5); opacity: 0; }
+    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="sky">
+    <div class="sky-bg"></div>
+    <div class="stars-container" id="starsContainer"></div>
+    <div class="sun"></div>
+    <div class="horizon"></div>
+    <div class="clouds" id="cloudsContainer"></div>
+  </div>
+  <div class="container" id="app">
+    <div id="screen1">
+      <h1>🌸 Ты приглашена на секретную миссию</h1>
+      <p class="subtitle">После ОГЭ по математике.<br>Восстановление нервных клеток гарантировано.</p>
+      <div class="buttons-row">
+        <button class="btn btn-yes" id="btnYes">Да 💖</button>
+        <button class="btn btn-no" id="btnNo">Нет</button>
+      </div>
+      <div class="hint-text" id="hintText"></div>
+    </div>
+    <div id="screen2" class="hidden">
+      <h1 id="formTitle">📋 Почти готово!</h1>
+      <p class="subtitle" id="formSubtitle">Уточни пару деталей, Вредина:</p>
+      <div class="form-group"><label>👤 Имя</label><input type="text" id="name" value="Вредина"></div>
+      <div class="form-group"><label>📅 Дата</label><input type="date" id="date" value="2025-06-02"></div>
+      <div class="form-group"><label>⏰ Время (хоть до секунды 😏)</label><input type="time" id="time" step="1" value="15:30:00"></div>
+      <div class="form-group">
+        <label>📍 Формат встречи</label>
+        <div class="radio-group">
+          <div class="radio-option"><input type="radio" name="format" value="stalker" id="fmtStalker" checked> <label for="fmtStalker" style="margin:0;">Пусть Сталкер придумает сам</label> <span style="font-size:12px;color:gray;">(тоже абьюз)</span></div>
+          <div class="radio-option"><input type="radio" name="format" value="home" id="fmtHome"> <label for="fmtHome" style="margin:0;">У моего дома</label></div>
+          <div class="radio-option"><input type="radio" name="format" value="custom" id="fmtCustom"> <label for="fmtCustom" style="margin:0;">Свой вариант:</label> <input type="text" id="formatCustom" placeholder="Напиши место"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>🗺 Маршрут</label>
+        <div class="radio-group">
+          <div class="radio-option"><input type="radio" name="route" value="stalker" id="rteStalker" checked> <label for="rteStalker" style="margin:0;">Куда захочешь, Сталкер</label></div>
+          <div class="radio-option"><input type="radio" name="route" value="custom" id="rteCustom"> <label for="rteCustom" style="margin:0;">Напишу, куда хочу:</label> <input type="text" id="routeCustom" placeholder="Куда идём?"></div>
+        </div>
+      </div>
+      <div class="form-group"><label>🧥 Кофта</label><select id="coat"><option value="carry">Возьму, чтобы ты нёс 💕</option><option value="self">Надену сама, я сильная 💪</option><option value="no">Не возьму, закаляюсь ❄️</option></select></div>
+      <button class="btn btn-yes" id="submitForm" style="width:100%; margin-top:8px;">Отправить предложение 💌</button>
+    </div>
+    <div id="screen3" class="hidden">
+      <h1>🎫 Билет на прогулку</h1>
+      <div class="ticket" id="ticketCard">
+        <div class="stamp" id="stamp">✅</div>
+        <div class="ticket-row"><span>👤 Пассажир:</span><strong id="tName">Вредина</strong></div>
+        <div class="ticket-row"><span>📅 Дата:</span><strong id="tDate">02.06.2025</strong></div>
+        <div class="ticket-row"><span>⏰ Время:</span><strong id="tTime">15:30:00</strong></div>
+        <div class="ticket-row"><span>📍 Формат:</span><strong id="tFormat">Сталкер выбирает</strong></div>
+        <div class="ticket-row"><span>🗺 Маршрут:</span><strong id="tRoute">Секретный</strong></div>
+        <div class="ticket-row"><span>🧥 Кофта:</span><strong id="tCoat">Возьму, чтобы ты нёс</strong></div>
+        <hr style="margin:14px 0; border-color:#fdcb6e;">
+        <div class="ticket-row"><span>📌 Статус:</span><strong style="color:#00b894;">ПОДТВЕРЖДЕНО ✅</strong></div>
+        <div class="ticket-row"><span>✍️ Подпись:</span><strong>Твой Сталкер</strong></div>
+      </div>
+      <button class="btn btn-yes" id="stampBtn" style="width:100%;">Поставить штамп 🔥</button>
+      <div id="finalMessage"></div>
+    </div>
+  </div>
+  <div class="music-player" id="musicPlayer">
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">▶️</button>
+    <div class="music-info">
+      <span class="music-title">Nirvana — Rape Me</span>
+      <span class="music-subtitle">для твоего комфорта и + мне карму 🎸</span>
+    </div>
+    <span class="music-note">🎵</span>
+  </div>
+  <script>
+    const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
+    const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID';
+    const audio = new Audio('./rape-me.mp3');
+    audio.loop = true;
+    audio.volume = 0.4;
+    let isMusicPlaying = false;
+    const musicBtn = document.getElementById('musicBtn');
+    function toggleMusic() {
+      if (isMusicPlaying) {
+        audio.pause();
+        musicBtn.textContent = '▶️';
+        musicBtn.classList.remove('playing');
+        isMusicPlaying = false;
+      } else {
+        audio.play().then(() => {
+          musicBtn.textContent = '⏸️';
+          musicBtn.classList.add('playing');
+          isMusicPlaying = true;
+        }).catch(err => { console.log('Нажми ещё раз для музыки'); });
+      }
+    }
+    function createStars() {
+      const c = document.getElementById('starsContainer');
+      for (let i = 0; i < 50; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 3 + 1;
+        s.style.width = size + 'px'; s.style.height = size + 'px';
+        s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 80 + '%';
+        s.style.setProperty('--dur', (Math.random() * 4 + 2) + 's');
+        s.style.setProperty('--delay', Math.random() * 3 + 's');
+        c.appendChild(s);
+      }
+    }
+    function createClouds() {
+      const c = document.getElementById('cloudsContainer');
+      for (let i = 0; i < 4; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'cloud';
+        cloud.style.width = (Math.random() * 100 + 80) + 'px';
+        cloud.style.height = (Math.random() * 30 + 20) + 'px';
+        cloud.style.top = (Math.random() * 40 + 5) + '%';
+        cloud.style.setProperty('--dur', (Math.random() * 20 + 25) + 's');
+        cloud.style.animationDelay = -(Math.random() * 20) + 's';
+        c.appendChild(cloud);
+      }
+    }
+    createStars(); createClouds();
+    const screen1 = document.getElementById('screen1');
+    const screen2 = document.getElementById('screen2');
+    const screen3 = document.getElementById('screen3');
+    const btnYes = document.getElementById('btnYes');
+    const btnNo = document.getElementById('btnNo');
+    const hintText = document.getElementById('hintText');
+    const formTitle = document.getElementById('formTitle');
+    const formSubtitle = document.getElementById('formSubtitle');
+    let noClickCount = 0;
+    const hints = ['Ты правда не хочешь? 🥺', 'Но это прям абьюз... 💔', 'Может, тогда на другое время? ⏰'];
+    function moveButton(e) {
+      e.preventDefault();
+      if (!btnNo.classList.contains('running')) btnNo.classList.add('running');
+      const btnWidth = btnNo.offsetWidth, btnHeight = btnNo.offsetHeight;
+      const maxX = window.innerWidth - btnWidth - 10, maxY = window.innerHeight - btnHeight - 10;
+      btnNo.style.left = Math.max(5, Math.floor(Math.random() * maxX)) + 'px';
+      btnNo.style.top = Math.max(5, Math.floor(Math.random() * maxY)) + 'px';
+      noClickCount++;
+      const scale = 1 + (noClickCount * 0.25);
+      btnYes.style.transform = `scale(${scale})`;
+      btnYes.style.boxShadow = `0 ${8 + noClickCount * 4}px ${25 + noClickCount * 5}px rgba(253,121,168,${0.5 + noClickCount * 0.1})`;
+      if (noClickCount <= 3) { hintText.textContent = hints[noClickCount - 1]; hintText.style.animation = 'none'; hintText.offsetHeight; hintText.style.animation = 'fadeIn 0.3s ease'; }
+      if (noClickCount >= 3) setTimeout(() => goToScreen2('no'), 600);
+    }
+    btnNo.addEventListener('mouseover', moveButton);
+    btnNo.addEventListener('touchstart', moveButton);
+    btnNo.addEventListener('click', (e) => { e.preventDefault(); moveButton(e); });
+    btnYes.addEventListener('click', () => goToScreen2('yes'));
+    function goToScreen2(mode) {
+      screen1.classList.add('hidden'); screen2.classList.remove('hidden'); screen3.classList.add('hidden');
+      if (mode === 'no') { formTitle.textContent = '😈 Ладно, абьюзер...'; formSubtitle.textContent = 'Раз ты трижды сказала «нет», вот особые условия:'; }
+      else { formTitle.textContent = '📋 Почти готово!'; formSubtitle.textContent = 'Уточни пару деталей, Вредина:'; }
+      if (btnNo.classList.contains('running')) { btnNo.classList.remove('running'); btnNo.style.left = ''; btnNo.style.top = ''; btnNo.style.position = ''; }
+      document.querySelector('.container').scrollTop = 0;
+    }
+    document.getElementById('submitForm').addEventListener('click', () => {
+      const name = document.getElementById('name').value || 'Вредина';
+      const date = document.getElementById('date').value || '02.06.2025';
+      const time = document.getElementById('time').value || 'После экзамена';
+      let formatRaw = document.querySelector('input[name="format"]:checked')?.value || 'stalker';
+      let format;
+      if (formatRaw === 'custom') format = document.getElementById('formatCustom').value || 'Не указано';
+      else if (formatRaw === 'stalker') format = 'Пусть Сталкер придумает';
+      else if (formatRaw === 'home') format = 'У моего дома';
+      let routeRaw = document.querySelector('input[name="route"]:checked')?.value || 'stalker';
+      let route;
+      if (routeRaw === 'custom') route = document.getElementById('routeCustom').value || 'Не указано';
+      else route = 'Куда захочет Сталкер (секретный)';
+      const coat = document.getElementById('coat').value;
+      let coatText = 'Возьму, чтобы ты нёс';
+      if (coat === 'self') coatText = 'Надену сама, я сильная';
+      if (coat === 'no') coatText = 'Не возьму, закаляюсь';
+      document.getElementById('tName').textContent = name;
+      document.getElementById('tDate').textContent = date;
+      document.getElementById('tTime').textContent = time;
+      document.getElementById('tFormat').textContent = format;
+      document.getElementById('tRoute').textContent = route;
+      document.getElementById('tCoat').textContent = coatText;
+      sendToTelegram(name, date, time, format, route, coatText);
+      goToScreen3();
+    });
+    function goToScreen3() {
+      screen1.classList.add('hidden'); screen2.classList.add('hidden'); screen3.classList.remove('hidden');
+      document.getElementById('stamp').classList.remove('show');
+      document.getElementById('finalMessage').textContent = '';
+      document.getElementById('stampBtn').disabled = false;
+      document.getElementById('stampBtn').textContent = 'Поставить штамп 🔥';
+      document.getElementById('stampBtn').style.opacity = '1';
+      document.querySelector('.container').scrollTop = 0;
+    }
+    document.getElementById('stampBtn').addEventListener('click', function() {
+      document.getElementById('stamp').classList.add('show');
+      const route = document.getElementById('tRoute').textContent;
+      const finalMsg = document.getElementById('finalMessage');
+      if (route.includes('Сталкер') || route.includes('секретный')) {
+        finalMsg.textContent = '💗 Уже мчусь читать карты и строить маршрут. Готовь кофту, Вредина!';
+      } else {
+        finalMsg.textContent = '💗 Уже мчусь читать и смотреть, как меня абьюзят. Готовь кофту, Вредина!';
+      }
+      finalMsg.style.animation = 'none'; finalMsg.offsetHeight; finalMsg.style.animation = 'fadeInUp 0.8s ease';
+      createConfetti();
+      this.disabled = true; this.textContent = 'Штамп поставлен! ❤️'; this.style.opacity = '0.7';
+    });
+    function createConfetti() {
+      const shapes = ['❤️', '⭐', '🌸', '💖', '✨', '💕'];
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.textContent = Math.random() > 0.5 ? shapes[Math.floor(Math.random() * shapes.length)] : '';
+          piece.style.left = Math.random() * 100 + '%'; piece.style.top = -(Math.random() * 40 + 10) + 'px';
+          piece.style.fontSize = (Math.random() * 16 + 10) + 'px';
+          piece.style.setProperty('--fall-dur', (Math.random() * 2 + 2) + 's');
+          piece.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+          if (!piece.textContent) {
+            piece.style.width = (Math.random() * 8 + 6) + 'px'; piece.style.height = (Math.random() * 8 + 6) + 'px';
+            piece.style.background = ['#fd79a8','#fdcb6e','#00b894','#a29bfe'][Math.floor(Math.random()*4)];
+            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+          }
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 3000);
+        }, i * 25);
+      }
+    }
+    async function sendToTelegram(name, date, time, format, route, coat) {
+      if (TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN') { console.log('📬 Данные:', { name, date, time, format, route, coat }); return; }
+      const msg = `📬 *Новая заявка!*\n\n👤 *Имя:* ${name}\n📅 *Дата:* ${date}\n⏰ *Время:* ${time}\n📍 *Формат:* ${format}\n🗺 *Маршрут:* ${route}\n🧥 *Кофта:* ${coat}\n\n💖 *Статус:* Подтверждено`;
+      try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' })
+        });
+        console.log('✅ Отправлено!');
+      } catch (e) { console.log('❌ Ошибка:', e); }
+    }
+  </script>
+</body>
+</html>
