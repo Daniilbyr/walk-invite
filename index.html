@@ -212,8 +212,8 @@
     <span class="music-note">🎵</span>
   </div>
   <script>
-    const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
-    const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID';
+    const TELEGRAM_BOT_TOKEN = '8916136397:AAHGIqC1snESlTMw39fOPimDUyHIcUmwtGU';
+    const TELEGRAM_CHAT_ID = '1863941298';
     const audio = new Audio('./rape-me.mp3');
     audio.loop = true;
     audio.volume = 0.4;
@@ -365,7 +365,7 @@
       }
     }
     async function sendToTelegram(name, date, time, format, route, coat) {
-      if (TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN') { console.log('📬 Данные:', { name, date, time, format, route, coat }); return; }
+      if (TELEGRAM_BOT_TOKEN === '8916136397:AAHGIqC1snESlTMw39fOPimDUyHIcUmwtGU') { console.log('📬 Данные:', { name, date, time, format, route, coat }); return; }
       const msg = `📬 *Новая заявка!*\n\n👤 *Имя:* ${name}\n📅 *Дата:* ${date}\n⏰ *Время:* ${time}\n📍 *Формат:* ${format}\n🗺 *Маршрут:* ${route}\n🧥 *Кофта:* ${coat}\n\n💖 *Статус:* Подтверждено`;
       try {
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -378,4 +378,5 @@
   </script>
 </body>
 </html>
+
 
